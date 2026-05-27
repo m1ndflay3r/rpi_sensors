@@ -1,0 +1,20 @@
+#!/usr/bin/env zsh
+
+while sleep 1; do
+  clear
+  clock_var=$(vcgencmd measure_clock arm); clock_var=${clock_var:13}
+  print -P "%F{green}CPU Freq:%f $((clock_var/1000000)) MHz"
+  gpu_var=$(vcgencmd measure_clock v3d); gpu_var=${gpu_var:13}
+  print -P "%F{blue}GPU Freq:%f $((gpu_var/1000000)) MHz"
+  temperature_var=$(vcgencmd measure_temp); temperature_var=${temperature_var:5:$((${#temperature_var}-7))}
+  print -Pn "%F{yellow}CPU Temp:%f $temperature_var"; print '°C'
+  throttle_var=$(vcgencmd get_throttled); throttle_var=${throttle_var:10}
+  [[ "$throttle_var" = '0x0' ]] && {
+    throttle_var='0'
+  } || {
+    throttle_var='1'
+  }
+  print -P "%F{red}Throttled:%f $throttle_var"
+  fanvar=$(sensors | grep pwm1); speedvar=${fanvar//[^0-9]/}; speedvar=${speedvar:1}
+  print -Pn "%F{cyan}Fan Speed:%f $speedvar"; print '%'
+done
