@@ -8,6 +8,17 @@ while sleep 1; do
   print -P "%F{blue} GPU Freq:%f $((gpu_var/1000000)) MHz"
   temperature_var=$(vcgencmd measure_temp); temperature_var=${temperature_var:5:$((${#temperature_var}-7))}
   print -Pn "%F{yellow} CPU Temp:%f $temperature_var"; print '°C'
+  volt_var=$(vcgencmd measure_volts core); volt_var=${volt_var:5}; volt_var=${volt_var//V/}
+  while true; do
+    volt_ln=$((${#volt_var}-1))
+    [[ ${volt_var:$volt_ln} = 0 ]] && {
+      volt_var=${volt_var::$volt_ln}
+      ((volt_ln--)); true
+    } || {
+      break
+    }
+  done
+  print -Pn "%F{magenta}  Voltage:%f $volt_var"; print "v"
   throttle_var=$(vcgencmd get_throttled); throttle_var=${throttle_var:10}
   [[ "$throttle_var" = '0x0' ]] && {
     throttle_var='0'
